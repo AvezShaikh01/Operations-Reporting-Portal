@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <title>Unified Reporting Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root {
+      --bg-primary-light: #ffffff;
+      --bg-secondary-light: #f7f7f7;
+      --text-primary-light: #1a1a1a;
+      --text-secondary-light: #6b6b6b;
+      --border-light: #e5e5e5;
+
+      --bg-primary-dark: #0f0f0f;
+      --bg-secondary-dark: #1a1a1a;
+      --text-primary-dark: #ffffff;
+      --text-secondary-dark: #a3a3a3;
+      --border-dark: #2a2a2a;
+
+      --accent-blue: #3a7afe;
+      --success: #4ade80;
+      --warning: #fbbf24;
+      --danger: #f87171;
+
+      --radius-md: 6px;
+      --radius-lg: 8px;
+      --shadow-light: 0 1px 3px rgba(0,0,0,0.08);
+      --shadow-dark: 0 1px 3px rgba(0,0,0,0.4);
+
+      --space-8: 8px;
+      --space-16: 16px;
+      --space-24: 24px;
+      --space-32: 32px;
+    }
+
+    [data-theme="light"] {
+      --bg-primary: var(--bg-primary-light);
+      --bg-secondary: var(--bg-secondary-light);
+      --text-primary: var(--text-primary-light);
+      --text-secondary: var(--text-secondary-light);
+      --border-color: var(--border-light);
+      --shadow: var(--shadow-light);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: var(--bg-primary-dark);
+      --bg-secondary: var(--bg-secondary-dark);
+      --text-primary: var(--text-primary-dark);
+      --text-secondary: var(--text-secondary-dark);
+      --border-color: var(--border-dark);
+      --shadow: var(--shadow-dark);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .sidebar {
+      width: 240px;
+      background: var(--bg-secondary);
+      border-right: 1px solid var(--border-color);
+      padding: var(--space-24) var(--space-16);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-24);
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 18px;
+    }
+
+    .nav-section-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-8);
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .nav-item {
+      padding: 8px 10px;
+      border-radius: var(--radius-md);
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-item.active {
+      color: var(--accent-blue);
+      background: rgba(58,122,254,0.08);
+    }
+
+    .nav-item:hover {
+      background: rgba(0,0,0,0.04);
+    }
+
+    [data-theme="dark"] .nav-item:hover {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .topbar {
+      height: 64px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 var(--space-24);
+      gap: var(--space-16);
+      background: var(--bg-primary);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .search {
+      flex: 1;
+      max-width: 480px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .search input {
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text-primary);
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+    }
+
+    .theme-toggle {
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      padding: 4px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      background: var(--bg-secondary);
+    }
+
+    .avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      background: var(--accent-blue);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .content {
+      padding: var(--space-24);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-24);
+    }
+
+    .content-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-16);
+    }
+
+    .content-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    .btn {
+      border-radius: var(--radius-md);
+      border: none;
+      padding: 8px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: var(--accent-blue);
+      color: #fff;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+
+    .grid-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: var(--space-16);
+    }
+
+    .card {
+      background: var(--bg-primary);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      padding: var(--space-16);
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: transform 0.1s ease, box-shadow 0.1s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.12);
+    }
+
+    [data-theme="dark"] .card:hover {
+      box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+    }
+
+    .card-title {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .card-value {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+
+    .table-wrapper {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+      background: var(--bg-primary);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    thead {
+      background: var(--bg-secondary);
+    }
+
+    th, td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--border-color);
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background: rgba(0,0,0,0.03);
+    }
+
+    [data-theme="dark"] tr:hover td {
+      background: rgba(255,255,255,0.04);
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+
+    .status-success {
+      background: rgba(74,222,128,0.12);
+      color: var(--success);
+    }
+
+    .status-warning {
+      background: rgba(251,191,36,0.12);
+      color: var(--warning);
+    }
+
+    .status-danger {
+      background: rgba(248,113,113,0.12);
+      color: var(--danger);
+    }
+
+    .tabs {
+      display: inline-flex;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      padding: 2px;
+      background: var(--bg-secondary);
+    }
+
+    .tab {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 999px;
+      cursor: pointer;
+      color: var(--text-secondary);
+    }
+
+    .tab.active {
+      background: var(--bg-primary);
+      color: var(--accent-blue);
+      font-weight: 500;
+    }
+
+    .flex-row {
+      display: flex;
+      align-items: center;
+      gap: var(--space-16);
+      flex-wrap: wrap;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    @media (max-width: 900px) {
+      .sidebar {
+        display: none;
+      }
+      body {
+        flex-direction: column;
+      }
+      .topbar {
+        padding-inline: var(--space-16);
+      }
+      .content {
+        padding: var(--space-16);
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="logo">Reports Portal</div>
+
+    <div>
+      <div class="nav-section-title">Main</div>
+      <ul class="nav-list">
+        <li class="nav-item active" data-view="dashboard">
+          <span>Dashboard</span>
+        </li>
+        <li class="nav-item" data-view="library">
+          <span>Reports Library</span>
+        </li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="nav-section-title">Reports</div>
+      <ul class="nav-list">
+        <li class="nav-item" data-view="visa"><span>Visa Report</span></li>
+        <li class="nav-item" data-view="deployment"><span>Deployment Report</span></li>
+        <li class="nav-item" data-view="invoices"><span>Outstanding Invoices</span></li>
+        <li class="nav-item" data-view="grievances"><span>Grievances Report</span></li>
+        <li class="nav-item" data-view="dailyops"><span>Daily Operations</span></li>
+      </ul>
+    </div>
+
+    <div class="sidebar-footer">
+      Logged in as<br />
+      <strong>Avez</strong>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="search">
+        <span>🔍</span>
+        <input type="text" placeholder="Search reports…" />
+      </div>
+      <div class="topbar-right">
+        <button class="theme-toggle" id="themeToggle">☀️ Light</button>
+        <div class="avatar">A</div>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- DASHBOARD -->
+      <section id="view-dashboard">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Dashboard</div>
+            <div class="section-sub">Overview of all your reports in one place.</div>
+          </div>
+          <div class="flex-row">
+            <button class="btn btn-ghost" data-view-jump="library">View Library</button>
+          </div>
+        </div>
+
+        <div class="grid-cards">
+          <div class="card" data-view-jump="visa">
+            <div class="card-title">Visa Expiries</div>
+            <div class="card-value">3 expiring soon</div>
+            <div class="card-sub">Monitor upcoming visa deadlines.</div>
+          </div>
+          <div class="card" data-view-jump="deployment">
+            <div class="card-title">Active Deployments</div>
+            <div class="card-value">5 active</div>
+            <div class="card-sub">Track who is deployed where.</div>
+          </div>
+          <div class="card" data-view-jump="invoices">
+            <div class="card-title">Outstanding Invoices</div>
+            <div class="card-value">SAR 120,000</div>
+            <div class="card-sub">Total pending & overdue.</div>
+          </div>
+          <div class="card" data-view-jump="grievances">
+            <div class="card-title">Open Grievances</div>
+            <div class="card-value">2 open</div>
+            <div class="card-sub">Cases needing attention.</div>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;">
+          <div class="section-title">Today’s Daily Operations</div>
+          <div class="section-sub">Quick snapshot of today’s operations report.</div>
+          <div class="card" data-view-jump="dailyops">
+            <div class="card-title">05 May 2026 — Morning Shift</div>
+            <div class="card-sub">
+              • All teams reported on time<br />
+              • No major incidents<br />
+              • 1 minor issue: AC malfunction in Zone B
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- LIBRARY -->
+      <section id="view-library" class="hidden">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Reports Library</div>
+            <div class="section-sub">All reports across Visa, Deployment, Invoices, Grievances, and Daily Ops.</div>
+          </div>
+          <div class="flex-row">
+            <div class="tabs">
+              <div class="tab active" data-filter="all">All</div>
+              <div class="tab" data-filter="visa">Visa</div>
+              <div class="tab" data-filter="deployment">Deployment</div>
+              <div class="tab" data-filter="invoices">Invoices</div>
+              <div class="tab" data-filter="grievances">Grievances</div>
+              <div class="tab" data-filter="dailyops">Daily Ops</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Report Name</th>
+                <th>Category</th>
+                <th>Owner</th>
+                <th>Last Updated</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="libraryTableBody">
+              <tr data-category="visa">
+                <td>Visa Expiry — Ahmed Khan</td>
+                <td>Visa</td>
+                <td>HR</td>
+                <td>01 May 2026</td>
+                <td><span class="status-pill status-danger">Expiring Soon</span></td>
+              </tr>
+              <tr data-category="deployment">
+                <td>Deployment — NEOM Project</td>
+                <td>Deployment</td>
+                <td>Operations</td>
+                <td>03 May 2026</td>
+                <td><span class="status-pill status-success">Active</span></td>
+              </tr>
+              <tr data-category="invoices">
+                <td>Outstanding Invoices — ABC Trading</td>
+                <td>Invoices</td>
+                <td>Finance</td>
+                <td>02 May 2026</td>
+                <td><span class="status-pill status-danger">Overdue</span></td>
+              </tr>
+              <tr data-category="grievances">
+                <td>Grievance — Workplace Issue</td>
+                <td>Grievances</td>
+                <td>HR</td>
+                <td>04 May 2026</td>
+                <td><span class="status-pill status-warning">Under Review</span></td>
+              </tr>
+              <tr data-category="dailyops">
+                <td>Daily Ops — 05 May 2026</td>
+                <td>Daily Ops</td>
+                <td>Operations</td>
+                <td>05 May 2026</td>
+                <td><span class="status-pill status-success">Submitted</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- VISA -->
+      <section id="view-visa" class="hidden">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Visa Report</div>
+            <div class="section-sub">Track visa details and expiry dates.</div>
+          </div>
+          <button class="btn btn-primary">+ Add Visa Entry</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Visa Type</th>
+                <th>Country</th>
+                <th>Expiry Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Ahmed Khan</td>
+                <td>Work</td>
+                <td>UAE</td>
+                <td>12 Jun 2026</td>
+                <td><span class="status-pill status-danger">Expiring Soon</span></td>
+              </tr>
+              <tr>
+                <td>Sarah Malik</td>
+                <td>Business</td>
+                <td>KSA</td>
+                <td>02 Aug 2026</td>
+                <td><span class="status-pill status-warning">60 Days</span></td>
+              </tr>
+              <tr>
+                <td>Omar Ali</td>
+                <td>Work</td>
+                <td>Qatar</td>
+                <td>10 Dec 2026</td>
+                <td><span class="status-pill status-success">Active</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- DEPLOYMENT -->
+      <section id="view-deployment" class="hidden">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Deployment Report</div>
+            <div class="section-sub">Monitor employee deployments and return dates.</div>
+          </div>
+          <button class="btn btn-primary">+ Add Deployment</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Project</th>
+                <th>Location</th>
+                <th>Deployment Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>John Mathew</td>
+                <td>NEOM</td>
+                <td>Tabuk</td>
+                <td>10 Apr 2026</td>
+                <td>10 Jun 2026</td>
+                <td><span class="status-pill status-success">Active</span></td>
+              </tr>
+              <tr>
+                <td>Ali Hassan</td>
+                <td>Riyadh Metro</td>
+                <td>Riyadh</td>
+                <td>01 Mar 2026</td>
+                <td>01 May 2026</td>
+                <td><span class="status-pill status-warning">Ending Soon</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- INVOICES -->
+      <section id="view-invoices" class="hidden">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Outstanding Invoices Report</div>
+            <div class="section-sub">Track pending and overdue invoices.</div>
+          </div>
+          <button class="btn btn-primary">+ Add Invoice</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Client</th>
+                <th>Invoice #</th>
+                <th>Amount</th>
+                <th>Due Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>ABC Trading</td>
+                <td>INV-2026-004</td>
+                <td>SAR 45,000</td>
+                <td>15 May 2026</td>
+                <td><span class="status-pill status-danger">Overdue</span></td>
+              </tr>
+              <tr>
+                <td>Gulf Logistics</td>
+                <td>INV-2026-007</td>
+                <td>SAR 75,000</td>
+                <td>25 May 2026</td>
+                <td><span class="status-pill status-warning">Due Soon</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- GRIEVANCES -->
+      <section id="view-grievances" class="hidden">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Grievances Report</div>
+            <div class="section-sub">Track employee grievances and resolution status.</div>
+          </div>
+          <button class="btn btn-primary">+ Add Grievance</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Employee</th>
+                <th>Category</th>
+                <th>Date Filed</th>
+                <th>Assigned Officer</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Faisal Rahman</td>
+                <td>Workplace Issue</td>
+                <td>02 May 2026</td>
+                <td>HR Manager</td>
+                <td><span class="status-pill status-warning">Under Review</span></td>
+              </tr>
+              <tr>
+                <td>Maryam Saeed</td>
+                <td>Payroll</td>
+                <td>28 Apr 2026</td>
+                <td>HR Officer</td>
+                <td><span class="status-pill status-success">Closed</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- DAILY OPS -->
+      <section id="view-dailyops" class="hidden">
+        <div class="content-header">
+          <div>
+            <div class="content-title">Daily Operations Report</div>
+            <div class="section-sub">Daily summaries of operations and issues.</div>
+          </div>
+          <button class="btn btn-primary">+ Add Daily Ops</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table>
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Shift</th>
+                <th>Supervisor</th>
+                <th>Summary</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>05 May 2026</td>
+                <td>Morning</td>
+                <td>Avez</td>
+                <td>All teams reported on time; minor AC issue in Zone B.</td>
+                <td><span class="status-pill status-success">Submitted</span></td>
+              </tr>
+              <tr>
+                <td>04 May 2026</td>
+                <td>Evening</td>
+                <td>Omar</td>
+                <td>Normal operations; no incidents.</td>
+                <td><span class="status-pill status-success">Submitted</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const themeToggle = document.getElementById('themeToggle');
+    const rootHtml = document.documentElement;
+
+    function updateThemeLabel() {
+      const theme = rootHtml.getAttribute('data-theme');
+      themeToggle.textContent = theme === 'light' ? '☀️ Light' : '🌙 Dark';
+    }
+
+    themeToggle.addEventListener('click', () => {
+      const current = rootHtml.getAttribute('data-theme') || 'light';
+      const next = current === 'light' ? 'dark' : 'light';
+      rootHtml.setAttribute('data-theme', next);
+      updateThemeLabel();
+    });
+
+    updateThemeLabel();
+
+    const views = [
+      'dashboard',
+      'library',
+      'visa',
+      'deployment',
+      'invoices',
+      'grievances',
+      'dailyops'
+    ];
+
+    function showView(name) {
+      views.forEach(v => {
+        const section = document.getElementById('view-' + v);
+        if (section) section.classList.toggle('hidden', v !== name);
+      });
+
+      document.querySelectorAll('.nav-item').forEach(item => {
+        const view = item.getAttribute('data-view');
+        item.classList.toggle('active', view === name);
+      });
+    }
+
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const view = item.getAttribute('data-view');
+        if (view) showView(view);
+      });
+    });
+
+    document.querySelectorAll('[data-view-jump]').forEach(el => {
+      el.addEventListener('click', () => {
+        const view = el.getAttribute('data-view-jump');
+        if (view) showView(view);
+      });
+    });
+
+    const libraryTabs = document.querySelectorAll('#view-library .tab');
+    const libraryRows = document.querySelectorAll('#libraryTableBody tr');
+
+    libraryTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const filter = tab.getAttribute('data-filter');
+        libraryTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+
+        libraryRows.forEach(row => {
+          const cat = row.getAttribute('data-category');
+          row.style.display = (filter === 'all' || filter === cat) ? '' : 'none';
+        });
+      });
+    });
+
+    showView('dashboard');
+  </script>
+</body>
+</html>
